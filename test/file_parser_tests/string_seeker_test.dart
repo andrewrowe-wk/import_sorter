@@ -2,8 +2,7 @@
 import 'package:test/test.dart';
 
 // 🌎 Project imports:
-import 'package:import_sorter/file_parser/string_seeker.dart';
-
+import 'package:import_sorter/file_parser/utils/string_seeker.dart';
 
 void main() {
   group('String Seeker', () {

@@ -1,48 +1,6 @@
+import 'package:import_sorter/file_parser/utils/parser_helpers.dart';
+import 'package:import_sorter/file_parser/utils/string_seeker.dart';
 
-
-String parseSimpleToken(final StringSeeker seeker, final String expectedValue) {
-  final parsedToken = seeker.takeUntilWhitespace();
-  if (expectedValue != parsedToken) {
-    throw FormatException('Expected: \'$expectedValue\' at char ${seeker.previousIndex}, but got $parsedToken');
-  }
-
-  return parsedToken;
-}
-
-// String parsing is actually very complicated as it turns out
-// This does not support multiline uris
-String parseUri(final StringSeeker seeker) {
-  final uri = seeker.takeUntilWhitespace();
-  if (wrappedInQuotes(uri)) {
-    throw FormatException('Expected: Uri at char ${seeker.previousIndex} to be wrapped in quotes. (Note: This parser currently does not work with multiline strings)');
-  }
-
-  return uri;
-}
-
-String parseIdentifier(final StringSeeker seeker) {
-  final identifier = seeker.takeUntilWhitespace();
-  if (identifier.isEmpty) {
-    throw FormatException('Expected: Identifier at char ${seeker.previousIndex}');
-  }
-
-  return identifier;
-}
-
-String consumeUntilNextStatement(final StringSeeker seeker) {
-  final endOfImportStatement = parser.takeThrough(';');
-  // Dispose of whitespace at end of import statement
-  parser.takeAllWhitespace();
-
-  return endOfImportStatement;
-}
-
-bool wrappedInQuotes(final String s) {
-  const singleQuote = '\'';
-  const doubleQuote = '\'';
-
-  return s.startsWith(singleQuote) && s.endsWith(singleQuote) || s.startsWith(doubleQuote) && s.endsWith(doubleQuote);
-}
 
 ImportStatement parseImportStatement(final StringSeeker seeker) {
   String importString = '';
@@ -88,30 +46,4 @@ ImportStatement parseImportStatement(final StringSeeker seeker) {
   importString += consumeUntilNextStatement(seeker);
 
   return ImportStatement(importString, uri, identifier);
-}
-
-List<String> parseBeforeImportBlock(final StringSeeker seeker) {
-  return parser.takeUntil(RegExp)
-}
-
-ParsedFile parseFile(String fileText) {
-  final seeker = StringSeeker(fileText);
-}
-
-class ParsedFile {
-  final List<String> beforeImports;
-  final List<ImportStatement> imports;
-  final List<String> remainderOfFile;
-}
-
-class ImportStatement {
-  final String importString;
-  final String uri;
-  final String identifier;
-
-  ImportStatement(final this.importString, final this.uri, final this.identifier);
-}
-
-void main() {
-  print('hello world');
 }
