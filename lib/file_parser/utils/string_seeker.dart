@@ -29,7 +29,7 @@ class StringSeeker {
     _previousIndex = _index;
     String returnVal = '';
     wrapInRangeError(() {
-      while (whitespaceRegex.hasMatch(currentChar)) {
+      while (_index < _fileText.length && whitespaceRegex.hasMatch(currentChar)) {
         returnVal += _takeOne();
       }
     });
@@ -66,16 +66,6 @@ class StringSeeker {
 
     return returnVal;
   }
-
-  // String takeUntil(RegExp pattern) {
-  //   String returnVal = '';
-
-  //   _previousIndex = _index;
-
-  //   while (!pattern.hasMatch(_fileText.substring(_index))) {
-  //     returnVal += _takeOne();
-  //   }
-  // }
 
   String _takeOne() {
     final returnVal = currentChar;

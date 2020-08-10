@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 import 'package:import_sorter/file_parser/header_parser.dart';
 import 'package:import_sorter/file_parser/utils/string_seeker.dart';
 
-import './header_text.dart' as test_text;
+import './data/header_text.dart' as test_text;
 
 
 void main() {

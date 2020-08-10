@@ -1,6 +1,10 @@
+import 'package:import_sorter/file_parser/models/import_statement.dart';
 import 'package:import_sorter/file_parser/utils/parser_helpers.dart';
 import 'package:import_sorter/file_parser/utils/string_seeker.dart';
 
+List<ImportStatement> parseImportBlock(final StringSeeker seeker) {
+  final returnVal = List<String>();
+}
 
 ImportStatement parseImportStatement(final StringSeeker seeker) {
   String importString = '';
