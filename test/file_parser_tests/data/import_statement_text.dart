@@ -52,7 +52,6 @@ const importBlockStatement10 = '''/*
 
 String get sampleFileText => '$sampleFileHeader$importBlock$sampleFileBody';
 String get sampleFileNoHeader => '$importBlock$sampleFileBody';
-String get sampleFileNoImportBlock => '$sampleFileHeader$sampleFileBody';
 
 const sampleFileHeader = '''
 # Header directive

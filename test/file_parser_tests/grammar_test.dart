@@ -238,10 +238,10 @@ void main() {
       testMappedParseResult(results2[2], ParseType.Body, test_text.sampleFileBody, trim: false);
 
       // File with no import
-      final results3 = FILE_GRAMMAR.parse(test_text.sampleFileNoImportBlock).value;
-
-      expect(results3[0].type, ParseType.Header);
-      expect(results3[0].value, '${test_text.sampleFileHeader}${test_text.sampleFileBody}');
+      final results3 = FILE_GRAMMAR.parse('').value;
+      expect(results3[0].value, '');
+      expect(results3[1], null);
+      expect(results3[2].value, '');
     });
   });
 }
