@@ -4,104 +4,6 @@ import 'dart:io';
 // 📦 Package imports:
 import 'package:colorize/colorize.dart';
 
-// 🌎 Project imports
-import 'package:import_sorter/lib/file_line_list.dart';
-
-class ParserState {
-  final List<String> lines;
-  final int index;
-  final List<LineData> parsedData;
-
-  ParserState(final this.lines, final this.index, final this.parsedData);
-}
-
-ParserState initializeParser(final List<String> lines) {
-  return ParserState(lines, 0, []);
-}
-
-ParserState getNextParserState(final ParserState state) {
-  return ParserState(state.lines, )
-}
-
-class LineData {
-  final bool isImport;
-  final List<String> lines;
-
-  LineData(final this.isImport, final this.lines);
-}
-
-class ImportSection {
-  final String 
-}
-
-final importMatcher = RegExp(r'^\s*import');
-bool isImportLine(final String line) {
-  return line.startsWith(importMatcher);
-}
-
-final multiLineStatementMatcher = RegExp(r';\s*$');
-bool isMultiLineStatement(final String line) {
-  return line.contains(multiLineStatementMatcher);
-}
-
-LineData getLineData(final FileLinesList lines) {
-  final currentLine = lines.getNextLine();
-
-  if (isImportLine(currentLine)) {
-    if (isMultiLineStatement(currentLine)) {
-      final allLines = [currentLine];
-      return LineData(true, )
-    } else {
-      return LineData(true, [currentLine])
-    }
-  } else {
-    return LineData(false, [currentLine]);
-  }
-}
-
-List<LineData> toLineData(final List<String> lines) {
-
-}
-
-enum TypeOfLine {
-  SingleLineImport,
-  MultiLineImport,
-  MultiLineStringImport,
-  Other
-}
-
-/// Get the number of times a string contains another
-/// string
-int _timesContained(String string, String looking) =>
-    string.split(looking).length - 1;
-
-bool _isMultiLineString(final String line) {
-  return _timesContained(lines[i], "'''") == 1 ||
-    _timesContained(lines[i], '"""') == 1;
-}
-
-bool _isSingleLineImport(final String line) {
-  return line.startsWith('import') && line.endsWith(';');
-}
-
-
-
-List<String> getAllLinesForImport(final FileLinesList fileLines) {
-  final importLines = List<String>();
-
-  while (fileLines.hasMoreLines()) {
-
-  }
-
-  return importLines;
-}
-
-TypeOfImport getTypeOfImportFromLine(final String line) {
-  if (_isSingleLineImport) {
-    return TypeOfImport.Singl
-  }
-}
-
 String dartImportComment(bool emojis) =>
     '//${emojis ? ' 🎯 ' : ' '}Dart imports:';
 String flutterImportComment(bool emojis) =>
@@ -123,7 +25,7 @@ List sortImports(
   bool exitIfChanged,
   bool noComments,
 ) {
-  final fileLines = FileLinesList(lines);
+  //final fileLines = FileLinesList(lines);
   final beforeImportLines = <String>[];
   final afterImportLines = <String>[];
 
@@ -144,16 +46,16 @@ List sortImports(
   var isMultiLineString = false;
   var isMultiLineImport = false;
 
-  while (fileLines.hasMoreLines()) {
-    final line = fileLines.getCurrentLine();
+  // while (fileLines.hasMoreLines()) {
+  //   final line = fileLines.getCurrentLine();
 
 
-  }
+  // }
 
   for (var i = 0; i < lines.length; i++) {
-    isSingleLineImport = isSingleLineImport(lines[i]);
-    isMultiLineString = isMultiLineString(lines[i]);
-    isMultiLineImport = isMultiLineImport(lines[i]);
+    // isSingleLineImport = isSingleLineImport(lines[i]);
+    // isMultiLineString = isMultiLineString(lines[i]);
+    // isMultiLineImport = isMultiLineImport(lines[i]);
 
     // If line is an import line
     if (isSingleLineImport || isMultiLineImport) {

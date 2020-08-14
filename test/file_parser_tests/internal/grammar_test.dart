@@ -2,8 +2,8 @@
 import 'package:petitparser/petitparser.dart';
 import 'package:test/test.dart';
 
-import 'package:import_sorter/file_parser/grammar.dart';
-import './data/import_statement_text.dart' as test_text;
+import 'package:import_sorter/file_parser/internal/grammar.dart';
+import '../data/import_statement_text.dart' as test_text;
 
 void testParser(final Parser p, final String test, [ final String expected ]) {
   final parseResult = p.parse(test);
