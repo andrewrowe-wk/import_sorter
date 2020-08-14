@@ -3,15 +3,30 @@ import 'dart:io';
 
 // 📦 Package imports:
 import 'package:colorize/colorize.dart';
+import 'package:import_sorter/file_parser/file_parser.dart';
+import 'package:import_sorter/file_parser/models/import_statement.dart';
 
-String dartImportComment(bool emojis) =>
+String _dartImportComment(bool emojis) =>
     '//${emojis ? ' 🎯 ' : ' '}Dart imports:';
-String flutterImportComment(bool emojis) =>
+String _flutterImportComment(bool emojis) =>
     '//${emojis ? ' 🐦 ' : ' '}Flutter imports:';
-String packageImportComment(bool emojis) =>
+String _packageImportComment(bool emojis) =>
     '//${emojis ? ' 📦 ' : ' '}Package imports:';
-String projectImportComment(bool emojis) =>
+String _projectImportComment(bool emojis) =>
     '//${emojis ? ' 🌎 ' : ' '}Project imports:';
+
+List<String> _extractImportStatement(final List<ImportStatement> imports) {
+  return imports.map((i) => i.toString()).toList();
+}
+
+void _buildImportSection(final List<String> fileOutput, final List<ImportStatement> imports, final bool noComments, final String comment) {
+    if (imports.isNotEmpty) {
+    if (!noComments) fileOutput.add(comment);
+    fileOutput.addAll([..._extractImportStatement(imports), '']);
+  }
+}
+
+final relativePathRegex = RegExp('^[^:]+\/[^\/]+\$');
 
 /// Sort the imports
 /// Returns the sorted file as a string at
@@ -25,148 +40,35 @@ List sortImports(
   bool exitIfChanged,
   bool noComments,
 ) {
-  //final fileLines = FileLinesList(lines);
-  final beforeImportLines = <String>[];
-  final afterImportLines = <String>[];
+  final parserResult = parseFile(lines.join('\n'));
+  final externalPackageRegex = RegExp('package:(?!(flutter|$package_name)).*');
 
-  final dartImports = <String>[];
-  final flutterImports = <String>[];
-  final packageImports = <String>[];
-  final projectRelativeImports = <String>[];
-  final projectImports = <String>[];
+  // Extract imports
+  final imports = parserResult.imports;
+  final dartImports = imports.where((i) => i.startsWith('dart:')).toList();
+  final flutterImports = imports.where((i) => i.startsWith('package:flutter')).toList();
+  final packageImports = imports.where((i) => i.startsWith(externalPackageRegex)).toList();
+  final projectImports = imports.where((i) => i.startsWith('package:$package_name')).toList();
+  final projectRelativeImports = imports.where((i) => i.startsWith(relativePathRegex)).toList();
 
-  bool noImports() =>
-      dartImports.isEmpty &&
-      flutterImports.isEmpty &&
-      packageImports.isEmpty &&
-      projectImports.isEmpty &&
-      projectRelativeImports.isEmpty;
+  // Sort imports
+  dartImports.sort();
+  flutterImports.sort();
+  packageImports.sort();
+  projectImports.sort();
+  projectRelativeImports.sort();
 
-  var isSingleLineImport = false;
-  var isMultiLineString = false;
-  var isMultiLineImport = false;
+  // Write new file
+  final fileOutput = List<String>();
 
-  // while (fileLines.hasMoreLines()) {
-  //   final line = fileLines.getCurrentLine();
+  //fileOutput.addAll(parserResult.header.split('\n'));
+  _buildImportSection(fileOutput, dartImports, noComments, _dartImportComment(emojis));
+  _buildImportSection(fileOutput, flutterImports, noComments, _flutterImportComment(emojis));
+  _buildImportSection(fileOutput, packageImports, noComments, _packageImportComment(emojis));
+  _buildImportSection(fileOutput, projectImports + projectRelativeImports, noComments, _projectImportComment(emojis));
+  fileOutput.addAll(parserResult.body.split('\n'));
 
-
-  // }
-
-  for (var i = 0; i < lines.length; i++) {
-    // isSingleLineImport = isSingleLineImport(lines[i]);
-    // isMultiLineString = isMultiLineString(lines[i]);
-    // isMultiLineImport = isMultiLineImport(lines[i]);
-
-    // If line is an import line
-    if (isSingleLineImport || isMultiLineImport) {
-      if (lines[i].contains('dart:')) {
-        dartImports.add(lines[i]);
-      } else if (lines[i].contains('package:flutter/')) {
-        flutterImports.add(lines[i]);
-      } else if (lines[i].contains('package:$package_name/')) {
-        projectImports.add(lines[i]);
-      } else if (!lines[i].contains('package:')) {
-        projectRelativeImports.add(lines[i]);
-      }
-      for (final dependency in dependencies) {
-        if (lines[i].contains('package:$dependency/') &&
-            dependency != 'flutter') {
-          packageImports.add(lines[i]);
-        }
-      }
-    } else if (i != lines.length - 1 &&
-        (lines[i] == dartImportComment(false) ||
-            lines[i] == flutterImportComment(false) ||
-            lines[i] == packageImportComment(false) ||
-            lines[i] == projectImportComment(false) ||
-            lines[i] == dartImportComment(true) ||
-            lines[i] == flutterImportComment(true) ||
-            lines[i] == packageImportComment(true) ||
-            lines[i] == projectImportComment(true) ||
-            lines[i] == '// 📱 Flutter imports:') &&
-        lines[i + 1].startsWith('import ') &&
-        lines[i + 1].endsWith(';')) {
-          // Does this do anything?
-    } else if (noImports()) {
-      beforeImportLines.add(lines[i]);
-    } else {
-      afterImportLines.add(lines[i]);
-    }
-  }
-
-  // If no import return original string of lines
-  if (noImports()) {
-    if (lines.length > 1) {
-      if (lines.last != '') {
-        return [
-          [...lines, ''].join('\n'),
-          0
-        ];
-      }
-    }
-    return [lines.join('\n'), 0];
-  }
-
-  // Remove spaces
-  if (beforeImportLines.isNotEmpty) {
-    if (beforeImportLines.last.trim() == '') {
-      beforeImportLines.removeLast();
-    }
-  }
-
-  final sortedLines = <String>[...beforeImportLines];
-
-  // Adding content conditionally
-  if (beforeImportLines.isNotEmpty) {
-    sortedLines.add('');
-  }
-  if (dartImports.isNotEmpty) {
-    if (!noComments) sortedLines.add(dartImportComment(emojis));
-    dartImports.sort();
-    sortedLines.addAll(dartImports);
-  }
-  if (flutterImports.isNotEmpty) {
-    if (dartImports.isNotEmpty) sortedLines.add('');
-    if (!noComments) sortedLines.add(flutterImportComment(emojis));
-    flutterImports.sort();
-    sortedLines.addAll(flutterImports);
-  }
-  if (packageImports.isNotEmpty) {
-    if (dartImports.isNotEmpty || flutterImports.isNotEmpty) {
-      sortedLines.add('');
-    }
-    if (!noComments) sortedLines.add(packageImportComment(emojis));
-    packageImports.sort();
-    sortedLines.addAll(packageImports);
-  }
-  if (projectImports.isNotEmpty || projectRelativeImports.isNotEmpty) {
-    if (dartImports.isNotEmpty ||
-        flutterImports.isNotEmpty ||
-        packageImports.isNotEmpty) {
-      sortedLines.add('');
-    }
-    if (!noComments) sortedLines.add(projectImportComment(emojis));
-    projectImports.sort();
-    projectRelativeImports.sort();
-    sortedLines.addAll(projectImports);
-    sortedLines.addAll(projectRelativeImports);
-  }
-
-  sortedLines.add('');
-
-  var addedCode = false;
-  for (var j = 0; j < afterImportLines.length; j++) {
-    if (afterImportLines[j] != '') {
-      sortedLines.add(afterImportLines[j]);
-      addedCode = true;
-    }
-    if (addedCode && afterImportLines[j] == '') {
-      sortedLines.add(afterImportLines[j]);
-    }
-  }
-  sortedLines.add('');
-
-  final sortedFile = sortedLines.join('\n');
+  final sortedFile = fileOutput.join('\n');
   if (exitIfChanged && lines.join('\n') + '\n' != sortedFile) {
     stdout.write('\n┗━━🚨 ');
     color(
@@ -183,7 +85,8 @@ List sortImports(
     dartImports.length +
         flutterImports.length +
         packageImports.length +
-        projectImports.length
+        projectImports.length +
+        projectRelativeImports.length
   ];
 }
 

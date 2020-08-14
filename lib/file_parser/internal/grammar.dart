@@ -12,21 +12,19 @@ enum ParseType {
   Import,
   ImportBlockComment,
   Header,
-  Body
+  Body,
+  Empty
 }
 
 class ParserOutput {
   final ParseType type;
   final String value;
+  
   ParserOutput(final this.type, final this.value);
-
-  String toString() {
-     return '$type: $value';
-   }
 }
 
 // Import Block Grammar
-final FILE_GRAMMAR = (FILE_HEADER.optional() & IMPORT_BLOCK.castList<ParserOutput>().optional() & FILE_BODY.optional()).end();//.map(_concat2).castList<ParserOutput>();
+final FILE_GRAMMAR = (FILE_HEADER.optional() & IMPORT_BLOCK.castList<ParserOutput>().optional() & FILE_BODY.optional()).end();
 
 // Parser for File Header
 final FILE_HEADER = IMPORT_BLOCK.neg().star().trim().flatten().map((value) => ParserOutput(ParseType.Header, value));
@@ -61,16 +59,6 @@ final _BLOCK_COMMENT = BLOCK_COMMENT_START & BLOCK_COMMENT_END.neg().star() & BL
 // String Grammar
 final STRING = SINGLE_LINE_STRING1 | SINGLE_LINE_STRING2;
 
-// [',', ['id']] -> [',', 'id']
-List<dynamic> _concat(dynamic values) {
-  return [values[0],...values[1]];
-}
-
-// // ['', [''], ''] -> ['', '', '']
-// List<dynamic> _concat2(dynamic values) {
-//   return [values[0], ...values[1], values[2]];
-// }
-
 // Tokens
 //
 // All tokens are 'trimmed', because these are things that can validly live
@@ -101,3 +89,8 @@ final UNDERSCORE = char('_');
 final SINGLE_QUOTE = char("'");
 final DOUBLE_QUOTE = char('"');
 final NEWLINE = string('\n\r') | string('\r\n') | pattern('\n\r');
+
+// [',', ['id']] -> [',', 'id']
+List<dynamic> _concat(dynamic values) {
+  return [values[0],...values[1]];
+}

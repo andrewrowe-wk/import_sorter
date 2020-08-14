@@ -4,9 +4,11 @@ class ImportStatement implements Comparable<ImportStatement> {
 
   ImportStatement(final this._importString, final this._uri);
 
-  int compareTo(ImportStatement that) {
+  int compareTo(final ImportStatement that) {
     return this._uri.compareTo(that._uri);
   }
 
   String toString() => _importString;
+
+  bool startsWith(final Pattern pattern) => _uri.startsWith(pattern);
 }
