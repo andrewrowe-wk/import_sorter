@@ -1,8 +1,16 @@
+// // TODO: To support multiline strings, we just need to write another token parser for
+// //       multiline strings and call it MULTI_LINE_STRING, then we can use it as follows:
+// // TODO: Show/hide parsing needs to exclude 'show' and 'hide' keywords when attempting
+// //       to parse variable name
+// //       final URI = (SINGLE_LINE_STRING | MULTI_LINE_STRING).flatten();
+// // TODO: Import grammar does not take inline comments into account
+// // Using https://github.com/petitparser/dart-petitparser
+
 import 'package:petitparser/petitparser.dart';
 
 enum ParseType {
   Import,
-  Comment,
+  ImportBlockComment,
   Header,
   Body
 }
@@ -46,7 +54,7 @@ final _IDENTIFIER_LIST = (IDENTIFIER & _MORE_IDENTIFIERS.star());
 final _MORE_IDENTIFIERS = (COMMA & IDENTIFIER).map((values) => values[1]);
 
 // Comment Grammar
-final COMMENT = (_LINE_COMMENT | _BLOCK_COMMENT).flatten().map((value) => ParserOutput(ParseType.Comment, value.trim()));
+final COMMENT = (_LINE_COMMENT | _BLOCK_COMMENT).flatten().map((value) => ParserOutput(ParseType.ImportBlockComment, value.trim()));
 final _LINE_COMMENT = LINE_COMMENT_MARKER & NEWLINE.neg().star() & NEWLINE.optional();
 final _BLOCK_COMMENT = BLOCK_COMMENT_START & BLOCK_COMMENT_END.neg().star() & BLOCK_COMMENT_END;
 

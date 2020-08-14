@@ -61,28 +61,28 @@ void testMappedImportBlockResults(final List<ParserOutput> results) {
   expect(results[1].type, ParseType.Import);
   expect(results[1].value, test_text.importBlockStatement2);
 
-  expect(results[2].type, ParseType.Comment);
+  expect(results[2].type, ParseType.ImportBlockComment);
   expect(results[2].value, test_text.importBlockStatement3);
 
-  expect(results[3].type, ParseType.Comment);
+  expect(results[3].type, ParseType.ImportBlockComment);
   expect(results[3].value, test_text.importBlockStatement4);
 
-  expect(results[4].type, ParseType.Comment);
+  expect(results[4].type, ParseType.ImportBlockComment);
   expect(results[4].value, test_text.importBlockStatement5);
 
-  expect(results[5].type, ParseType.Comment);
+  expect(results[5].type, ParseType.ImportBlockComment);
   expect(results[5].value, test_text.importBlockStatement6);
 
   expect(results[6].type, ParseType.Import);
   expect(results[6].value, test_text.importBlockStatement7);
 
-  expect(results[7].type, ParseType.Comment);
+  expect(results[7].type, ParseType.ImportBlockComment);
   expect(results[7].value, test_text.importBlockStatement8);
 
-  expect(results[8].type, ParseType.Comment);
+  expect(results[8].type, ParseType.ImportBlockComment);
   expect(results[8].value, test_text.importBlockStatement9);
 
-  expect(results[9].type, ParseType.Comment);
+  expect(results[9].type, ParseType.ImportBlockComment);
   expect(results[9].value, test_text.importBlockStatement10);
 }
 
@@ -179,20 +179,20 @@ void main() {
     });
 
     test('COMMENT should work as expected', () {
-      parseAndTestMappedResult(COMMENT, ParseType.Comment, '/* testing */');
-      parseAndTestMappedResult(COMMENT, ParseType.Comment, ' /*testing //fake comment inside */ ');
-      parseAndTestMappedResult(COMMENT, ParseType.Comment, '/**/');
-      parseAndTestMappedResult(COMMENT, ParseType.Comment, '''
+      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '/* testing */');
+      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, ' /*testing //fake comment inside */ ');
+      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '/**/');
+      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '''
 
       /*
        * multiline
        */
       
       ''');
-      parseAndTestMappedResult(COMMENT, ParseType.Comment, '// Test');
-      parseAndTestMappedResult(COMMENT, ParseType.Comment, ' //hello ');
-      parseAndTestMappedResult(COMMENT, ParseType.Comment, '/// this is the best  ');
-      parseAndTestMappedResult(COMMENT, ParseType.Comment, '/// comment // comment //comment should only be one');
+      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '// Test');
+      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, ' //hello ');
+      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '/// this is the best  ');
+      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '/// comment // comment //comment should only be one');
     });
 
     test('COMBINATOR_LIST should work as expected', () {
@@ -242,6 +242,12 @@ void main() {
       expect(results3[0].value, '');
       expect(results3[1], null);
       expect(results3[2].value, '');
+
+      // File with only imports
+      final results4 = FILE_GRAMMAR.parse(test_text.importBlock).value;
+      expect(results4[0].value, '');
+      testMappedImportBlockResults(results4[1]);
+      expect(results4[2].value, '');
     });
   });
 }
