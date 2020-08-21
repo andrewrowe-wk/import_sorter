@@ -1,3 +1,5 @@
+import 'package:import_sorter/import_comments.dart';
+
 const importStatement1 = '''import
    
    'package:import_sorter/file_parser/utils/string_seeker.dart' as
@@ -79,6 +81,37 @@ const sampleFileHeader = '''
 
 ''';
 
+const sampleFileHeaderClassOnly = '''class Foo {
+  final String bar;
+  final String baz;
+  final int bop;
+  final String bing;
+  final int burb;
+
+  Foo(this.bar, this.baz, this.bop, this.bing,
+      {this.burb});
+}
+''';
+
+const sampleFileHeaderRandomCode = '''@Deprecated('blah blah blah')
+const FOO = 'hello-hi-:';
+
+const String bar = 'test-file';
+const String baz = 'asoij39230990uer';
+const String bing = 'test-css-class';
+
+const double bam = 1024.0;
+const double boom =
+    120 * 2 * 3 * 4 * 5;
+const double kapow =
+    100 * 6 * 7 * 8;
+
+const int test = 50;
+
+const String test1 =
+    'aopsdifjaospdi-asdo0fijaopsdfijadopsifj-230894u290u34';
+''';
+
 
 const sampleFileBody = '''
 export 'Test export';
@@ -96,4 +129,22 @@ import 'test'; // other imports get ignored
 String get Test => 'Test'
 
 // A closing comment
+''';
+
+const sampleFileHeaderImportComments = '''
+$dartEmojis
+import 'dart:io';
+
+$flutterEmojis
+import 'flutter:flutter.dart';
+
+$packageEmojis
+import 'package:args/args.dart';
+import 'package:colorize/colorize.dart';
+import 'package:yaml/yaml.dart';
+
+$projectNoEmojis
+import 'package:import_sorter/args.dart' as local_args;
+import 'package:import_sorter/files.dart' as files;
+import 'package:import_sorter/sort.dart' as sort;
 ''';

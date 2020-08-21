@@ -1,4 +1,5 @@
 // 📦 Package imports:
+import 'package:import_sorter/import_comments.dart';
 import 'package:petitparser/petitparser.dart';
 import 'package:test/test.dart';
 
@@ -88,6 +89,17 @@ void testMappedImportBlockResults(final List<ParserOutput> results) {
 
 void main() {
   group('Grammars', () {
+    test('WHITESPACE should work as expected', () {
+      testParser(WHITESPACE, dartEmojis);
+      testParser(WHITESPACE, dartNoEmojis);
+      testParser(WHITESPACE, flutterEmojis);
+      testParser(WHITESPACE, flutterNoEmojis);
+      testParser(WHITESPACE, packageEmojis);
+      testParser(WHITESPACE, packageNoEmojis);
+      testParser(WHITESPACE, projectEmojis);
+      testParser(WHITESPACE, projectNoEmojis);
+    });
+
     test('NEWLINE should work as expected', () {
       testParser(NEWLINE, '\n');
       testParser(NEWLINE, '\r');
@@ -222,11 +234,16 @@ void main() {
       testMappedImportBlockResults(results);
     });
 
+    test('FILE_HEADER should work as expected', () {
+      expect(FILE_HEADER.parse('/* header comment */import \'\';').value.value, '/* header comment */');
+      expect(FILE_HEADER.parse(dartEmojis).value.value, '');
+    });
+  
     test('FILE_GRAMMAR should work as expected', () {
       final results = FILE_GRAMMAR.parse(test_text.sampleFileText).value;
       
       // File with header, import block and body
-      testMappedParseResult(results[0], ParseType.Header, test_text.sampleFileHeader, trim: false);
+      testMappedParseResult(results[0], ParseType.Header, test_text.sampleFileHeader, trim: true);
       testMappedImportBlockResults(results[1]);
       testMappedParseResult(results[2], ParseType.Body, test_text.sampleFileBody, trim: false);
 
@@ -248,6 +265,32 @@ void main() {
       expect(results4[0].value, '');
       testMappedImportBlockResults(results4[1]);
       expect(results4[2].value, '');
+
+      // File with class in header
+      final results5 = FILE_GRAMMAR.parse(test_text.sampleFileHeaderClassOnly).value;
+      expect(results5[0].value, test_text.sampleFileHeaderClassOnly);
+
+      // File with random code as header
+      final results6 = FILE_GRAMMAR.parse(test_text.sampleFileHeaderRandomCode).value;
+      expect(results6[0].value, test_text.sampleFileHeaderRandomCode);
+
+      // File that already has generated import comments
+      // Such comments should be ignored
+      final results7 = FILE_GRAMMAR.parse(test_text.sampleFileHeaderImportComments).value;
+      expect(results7[0].value, '');
+      // Ensure that no values contain comments
+      expect((results7[1] as List<ParserOutput>).map((e) => !e.value.contains('//')).reduce((value, element) => value || element), true);
+      expect(results7[2].value, '');
+    });
+
+    test('trimWithComments should work as expected', () {
+      testParser(DOLLAR.trimWithComments(), '$projectEmojis \$ \n', '\$');
+      testParser(HIDE.trimWithComments(), '''$flutterNoEmojis
+      
+      hide
+      
+      $projectNoEmojis
+      ''', 'hide');
     });
   });
 }
