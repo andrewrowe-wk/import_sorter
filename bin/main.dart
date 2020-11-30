@@ -63,7 +63,7 @@ void main(List<String> args) {
   // Setting values from args
   if (!emojis) emojis = argResults.contains('-e');
   if (!noComments) noComments = argResults.contains('--no-comments');
-  final exitOnChange = argResults.contains('--exit-if-changed');
+  final checkIfFilesSortedOnly = argResults.contains('--exit-if-changed');
 
   // Getting all the dart files for the project
   final dartFiles = files.dartFiles(currentPath);
@@ -81,30 +81,51 @@ void main(List<String> args) {
         (key, _) => expression.hasMatch(key.replaceFirst(currentPath, '')));
   }
 
-  stdout.write('\n┏━━🏭 Sorting Files');
+  if (checkIfFilesSortedOnly) {
+    for (final filePath in dartFiles.keys) {
+      final sortFileReturnPayload = sort.sortImports(
+          dartFiles[filePath], packageName, emojis, noComments);
 
-  // Sorting and writing to files
-  var filesFormatted = 0;
-  var importsSorted = 0;
+      if (sortFileReturnPayload.fileWasSorted) {
+        color(
+          '🚨 $filePath is not sorted.'
+          ''
+          'Please run import sorter!',
+          back: Styles.BOLD,
+          front: Styles.RED,
+          isBold: true,
+        );
+        exit(1);
+      }
+    }
+  } else {
+    stdout.write('\n┏━━🏭 Sorting Files');
 
-  for (final filePath in dartFiles.keys) {
-    final sortedFile = sort.sortImports(dartFiles[filePath], packageName,
-        dependencies, emojis, exitOnChange, noComments);
-    File(filePath).writeAsStringSync(sortedFile[0]);
-    importsSorted += sortedFile[1];
-    filesFormatted++;
-    final dirChunks = filePath.replaceAll(currentPath, '').split('/');
+    // Sorting and writing to files
+    var filesFormatted = 0;
+    var importsSorted = 0;
+
+    for (final filePath in dartFiles.keys) {
+      final sortFileReturnPayload = sort.sortImports(
+          dartFiles[filePath], packageName, emojis, noComments);
+      if (sortFileReturnPayload.fileWasSorted) {
+        File(filePath).writeAsStringSync(sortFileReturnPayload.sortedFileText);
+      }
+      importsSorted += sortFileReturnPayload.numberOfImportsSorted;
+      filesFormatted++;
+      final dirChunks = filePath.replaceAll(currentPath, '').split('/');
+      stdout.write(
+          '${filesFormatted == 1 ? '\n' : ''}┃  ${filesFormatted == dartFiles.keys.length ? '┗' : '┣'}━━✅ Sorted ${sortFileReturnPayload.numberOfImportsSorted} imports in ${dirChunks.getRange(0, dirChunks.length - 1).join('/')}/');
+      color(
+        dirChunks.last,
+        back: Styles.BOLD,
+        front: Styles.GREEN,
+        isBold: true,
+      );
+    }
+    stopwatch.stop();
     stdout.write(
-        '${filesFormatted == 1 ? '\n' : ''}┃  ${filesFormatted == dartFiles.keys.length ? '┗' : '┣'}━━✅ Sorted ${sortedFile[1]} imports in ${dirChunks.getRange(0, dirChunks.length - 1).join('/')}/');
-    color(
-      dirChunks.last,
-      back: Styles.BOLD,
-      front: Styles.GREEN,
-      isBold: true,
-    );
+        '┃\n┗━━🙌 Sorted $importsSorted imports in ${stopwatch.elapsed.inSeconds}.${stopwatch.elapsedMilliseconds} seconds\n');
+    stdout.write('\n');
   }
-  stopwatch.stop();
-  stdout.write(
-      '┃\n┗━━🙌 Sorted $importsSorted imports in ${stopwatch.elapsed.inSeconds}.${stopwatch.elapsedMilliseconds} seconds\n');
-  stdout.write('\n');
 }

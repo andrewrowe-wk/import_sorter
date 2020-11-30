@@ -32,7 +32,8 @@ FileParserResult parseFile(final String fileText) {
     }
   }
 
-  return FileParserResult(header, imports, buildBody(body, importBlockComments));
+  return FileParserResult(
+      header, imports, buildBody(body, importBlockComments));
 }
 
 List<ParserOutput> _parseFile(final String fileText) {

@@ -7,7 +7,8 @@ void main() {
     test('buildBody should work as expected', () {
       expect(buildBody('hello', []), 'hello');
 
-      expect(buildBody('hello', ['// one', '// two', '// three']), '''// START IMPORT BLOCK COMMENTS
+      expect(buildBody('hello', ['// one', '// two', '// three']),
+          '''// START IMPORT BLOCK COMMENTS
 // one
 
 // two
@@ -19,8 +20,13 @@ hello''');
     });
 
     test('getUriFromImportString should work as expected', () {
-      expect(getUriFromImportString('import \'package:test/test.dart\' as hello;'), 'package:test/test.dart');
-      expect(getUriFromImportString('import \"package:test/test.dart\" deferred as hello hide test;'), 'package:test/test.dart');
+      expect(
+          getUriFromImportString('import \'package:test/test.dart\' as hello;'),
+          'package:test/test.dart');
+      expect(
+          getUriFromImportString(
+              'import \"package:test/test.dart\" deferred as hello hide test;'),
+          'package:test/test.dart');
       expect(getUriFromImportString('''import
 
 

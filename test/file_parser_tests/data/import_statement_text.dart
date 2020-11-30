@@ -10,7 +10,8 @@ const importStatement1 = '''import
 
 
    ''';
-const importStatement2 = ' import \"package:testing/test.dart\" deferred as testing_package hide Test;   ';
+const importStatement2 =
+    ' import \"package:testing/test.dart\" deferred as testing_package hide Test;   ';
 const importStatement3 = 'import \'package:test/test/test.dart\' show Bill;';
 
 // A very wonky import block, but still valid
@@ -36,7 +37,8 @@ $importBlockStatement7 $importBlockStatement8
 
 const importBlockStatement1 = '''import 'package:./test.dart'
 ;''';
-const importBlockStatement2 = 'import \'package:test/test.dart\' as test hide Run;';
+const importBlockStatement2 =
+    'import \'package:test/test.dart\' as test hide Run;';
 const importBlockStatement3 = '// This should be captured';
 const importBlockStatement4 = '// this should be captured too';
 const importBlockStatement5 = '/// And this';
@@ -111,7 +113,6 @@ const int test = 50;
 const String test1 =
     'aopsdifjaospdi-asdo0fijaopsdfijadopsifj-230894u290u34';
 ''';
-
 
 const sampleFileBody = '''
 export 'Test export';

@@ -68,30 +68,25 @@ void main(List<String> args) async {
         sortImports(
           [],
           packageName,
-          dependencies,
           emojis,
-          false,
           noComments,
-        )[0],
-        '',
+        ),
+        SortReturnPayload(false, '', 0),
       );
     },
   );
   test(
     'No code, only imports',
     () {
-      final sortedImports = sortImports(
+      expect(
+        sortImports(
         '$projectImports\n$packageImports\n$dartImports\n$flutterImports\n'
             .split('\n'),
         packageName,
-        dependencies,
         emojis,
-        false,
         noComments,
-      );
-      expect(
-        sortedImports[0],
-        '$dartImportComment$dartImports\n$flutterImportComment$flutterImports\n$packageImportComment$packageImports\n$projectImportComment$projectImports\n',
+      ).sortedFileText,
+        '$dartImportComment$dartImports\n$flutterImportComment$flutterImports\n$packageImportComment$packageImports\n$projectImportComment$projectImports\n'
       );
     },
   );
@@ -101,12 +96,10 @@ void main(List<String> args) async {
       final sortedImports = sortImports(
         sampleProgram.split('\n'),
         packageName,
-        dependencies,
         emojis,
-        false,
         noComments,
       );
-      expect('${sortedImports[0]}\n', '$sampleProgram\n');
+      expect(sortedImports.sortedFileText, '$sampleProgram\n');
     },
   );
   test(
@@ -115,13 +108,11 @@ void main(List<String> args) async {
       final sortedImports = sortImports(
         '$dartImports\n$sampleProgram'.split('\n'),
         packageName,
-        dependencies,
         emojis,
-        false,
         noComments,
       );
       expect(
-        sortedImports[0],
+        sortedImports.sortedFileText,
         '$dartImportComment$dartImports\n$sampleProgram\n',
       );
     },
@@ -132,13 +123,11 @@ void main(List<String> args) async {
       final sortedImports = sortImports(
         '$flutterImports\n$sampleProgram'.split('\n'),
         packageName,
-        dependencies,
         emojis,
-        false,
         noComments,
       );
       expect(
-        sortedImports[0],
+        sortedImports.sortedFileText,
         '$flutterImportComment$flutterImports\n$sampleProgram\n',
       );
     },
@@ -149,13 +138,11 @@ void main(List<String> args) async {
       final sortedImports = sortImports(
         '$packageImports\n$sampleProgram'.split('\n'),
         packageName,
-        dependencies,
         emojis,
-        false,
         noComments,
       );
       expect(
-        sortedImports[0],
+        sortedImports.sortedFileText,
         '$packageImportComment$packageImports\n$sampleProgram\n',
       );
     },
@@ -166,13 +153,11 @@ void main(List<String> args) async {
       final sortedImports = sortImports(
         '$projectImports\n$sampleProgram'.split('\n'),
         packageName,
-        dependencies,
         emojis,
-        false,
         noComments,
       );
       expect(
-        sortedImports[0],
+        sortedImports.sortedFileText,
         '$projectImportComment$projectImports\n$sampleProgram\n',
       );
     },
@@ -184,13 +169,11 @@ void main(List<String> args) async {
         '$projectImports\n$packageImports\n$dartImports\n$flutterImports\n$sampleProgram'
             .split('\n'),
         packageName,
-        dependencies,
         emojis,
-        false,
         noComments,
       );
       expect(
-        sortedImports[0],
+        sortedImports.sortedFileText,
         '$dartImportComment$dartImports\n$flutterImportComment$flutterImports\n$packageImportComment$packageImports\n$projectImportComment$projectImports\n$sampleProgram\n',
       );
     },
@@ -202,14 +185,12 @@ void main(List<String> args) async {
         'library import_sorter;\n$projectImports\n$packageImports\n$dartImports\n$flutterImports\n$sampleProgram'
             .split('\n'),
         packageName,
-        dependencies,
         emojis,
-        false,
         noComments,
       );
       expect(
-        sortedImports[0],
-        'library import_sorter;\n\n$dartImportComment$dartImports\n$flutterImportComment$flutterImports\n$packageImportComment$packageImports\n$projectImportComment$projectImports\n$sampleProgram\n',
+        sortedImports.sortedFileText,
+        'library import_sorter;\n$dartImportComment$dartImports\n$flutterImportComment$flutterImports\n$packageImportComment$packageImports\n$projectImportComment$projectImports\n$sampleProgram\n',
       );
     },
   );

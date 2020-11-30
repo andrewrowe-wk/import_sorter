@@ -1,8 +1,6 @@
-// 🎯 Dart imports:
+// 📦 Package imports:
 import 'dart:io';
 
-// 📦 Package imports:
-import 'package:colorize/colorize.dart';
 import 'package:import_sorter/file_parser/file_parser.dart';
 import 'package:import_sorter/file_parser/models/import_statement.dart';
 import 'package:import_sorter/import_comments.dart';
@@ -11,11 +9,11 @@ List<String> _extractImportStatement(final List<ImportStatement> imports) {
   return imports.map((i) => i.toString()).toList();
 }
 
-// void _splitAndAddToFile(final List<String> fileOutput, final String text) {
-//   if (text.isNotEmpty) 
-// }
-
-void _buildImportSection(final List<String> fileOutput, final List<ImportStatement> imports, final bool noComments, final String comment) {
+void _buildImportSection(
+    final List<String> fileOutput,
+    final List<ImportStatement> imports,
+    final bool noComments,
+    final String comment) {
   if (imports.isNotEmpty) {
     if (!noComments) fileOutput.add(comment);
     fileOutput.addAll([..._extractImportStatement(imports), '']);
@@ -24,28 +22,45 @@ void _buildImportSection(final List<String> fileOutput, final List<ImportStateme
 
 final packageStringRegex = RegExp('^.*:.+\/?[^\/]+\$');
 
-/// Sort the imports
-/// Returns the sorted file as a string at
-/// index 0 and the number of sorted imports
-/// at index 1
-List sortImports(
-  List<String> lines,
-  String package_name,
-  List dependencies,
-  bool emojis,
-  bool exitIfChanged,
-  bool noComments,
-) {
+class SortReturnPayload {
+  /// 'true' if file imports were out of order and sorting applied
+  /// 'false' if file imports were in order, so no sorting applied
+  final bool fileWasSorted;
+  final String sortedFileText;
+  final int numberOfImportsSorted;
+
+  SortReturnPayload(final this.fileWasSorted, final this.sortedFileText,
+      final this.numberOfImportsSorted);
+
+  @override
+  bool operator ==(Object other) => other is SortReturnPayload && _equal(other);
+
+  bool _equal(final SortReturnPayload other) {
+    return fileWasSorted == other.fileWasSorted &&
+      sortedFileText == other.sortedFileText &&
+      numberOfImportsSorted == other.numberOfImportsSorted;
+  }
+}
+
+SortReturnPayload sortImports(
+    final List<String> lines,
+    final String packageName,
+    final bool shouldIncludeEmojis,
+    final bool shouldMakeImportBlockComments) {
   final parserResult = parseFile(lines.join('\n'));
-  final externalPackageRegex = RegExp('package:(?!(flutter|$package_name)).*');
+  final externalPackageRegex = RegExp('package:(?!(flutter|$packageName)).*');
 
   // Extract imports
   final imports = parserResult.imports;
   final dartImports = imports.where((i) => i.startsWith('dart:')).toList();
-  final flutterImports = imports.where((i) => i.startsWith('package:flutter')).toList();
-  final packageImports = imports.where((i) => i.startsWith(externalPackageRegex)).toList();
-  final projectImports = imports.where((i) => i.startsWith('package:$package_name')).toList();
-  final projectRelativeImports = imports.where((i) => !i.startsWith(packageStringRegex)).toList();
+  final flutterImports =
+      imports.where((i) => i.startsWith('package:flutter')).toList();
+  final packageImports =
+      imports.where((i) => i.startsWith(externalPackageRegex)).toList();
+  final projectImports =
+      imports.where((i) => i.startsWith('package:$packageName')).toList();
+  final projectRelativeImports =
+      imports.where((i) => !i.startsWith(packageStringRegex)).toList();
 
   // Sort imports
   dartImports.sort();
@@ -57,33 +72,32 @@ List sortImports(
   // Write new file
   final fileOutput = List<String>();
 
-  if (parserResult.header.isNotEmpty) { fileOutput.addAll(parserResult.header.split('\n')); }
-  _buildImportSection(fileOutput, dartImports, noComments, dartImportComment(emojis));
-  _buildImportSection(fileOutput, flutterImports, noComments, flutterImportComment(emojis));
-  _buildImportSection(fileOutput, packageImports, noComments, packageImportComment(emojis));
-  _buildImportSection(fileOutput, projectImports + projectRelativeImports, noComments, projectImportComment(emojis));
-  if (parserResult.body.isNotEmpty) { fileOutput.addAll(parserResult.body.split('\n')); }
+  if (parserResult.header.isNotEmpty) {
+    fileOutput.addAll(parserResult.header.split('\n'));
+  }
+  _buildImportSection(fileOutput, dartImports, shouldMakeImportBlockComments,
+      dartImportComment(shouldIncludeEmojis));
+  _buildImportSection(fileOutput, flutterImports, shouldMakeImportBlockComments,
+      flutterImportComment(shouldIncludeEmojis));
+  _buildImportSection(fileOutput, packageImports, shouldMakeImportBlockComments,
+      packageImportComment(shouldIncludeEmojis));
+  _buildImportSection(fileOutput, projectImports + projectRelativeImports,
+      shouldMakeImportBlockComments, projectImportComment(shouldIncludeEmojis));
+  if (parserResult.body.isNotEmpty) {
+    fileOutput.addAll(parserResult.body.split('\n'));
+  }
   fileOutput.add(''); // Newline at end of file
 
   final sortedFile = fileOutput.join('\n');
-  if (exitIfChanged && lines.join('\n') + '\n' != sortedFile) {
-    stdout.write('\n┗━━🚨 ');
-    color(
-      'Please run import sorter!',
-      back: Styles.BOLD,
-      front: Styles.RED,
-      isBold: true,
-    );
-    exit(1);
-  }
+  final originalFile = lines.join('\n') + '\n';
 
-  return [
-    sortedFile,
-    dartImports.length +
-        flutterImports.length +
-        packageImports.length +
-        projectImports.length +
-        projectRelativeImports.length
-  ];
+  final fileWasSorted = originalFile == sortedFile;
+
+  final numberOfImportsSorted = dartImports.length +
+      flutterImports.length +
+      packageImports.length +
+      projectImports.length +
+      projectRelativeImports.length;
+
+  return SortReturnPayload(fileWasSorted, sortedFile, numberOfImportsSorted);
 }
-

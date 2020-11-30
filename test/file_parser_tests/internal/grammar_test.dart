@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 import 'package:import_sorter/file_parser/internal/grammar.dart';
 import '../data/import_statement_text.dart' as test_text;
 
-void testParser(final Parser p, final String test, [ final String expected ]) {
+void testParser(final Parser p, final String test, [final String expected]) {
   final parseResult = p.parse(test);
 
   expect(parseResult.isSuccess, true);
@@ -43,14 +43,17 @@ void doubleQuoteStringTests(final Parser p) {
   expect(SINGLE_LINE_STRING2.parse('"""test"""').value, '""');
 }
 
-void parseAndTestMappedResult(final Parser p, final ParseType type, final String value) {
+void parseAndTestMappedResult(
+    final Parser p, final ParseType type, final String value) {
   final result = p.parse(value).value as ParserOutput;
 
   expect(result.type, type);
   expect(result.value, value.trim());
 }
 
-void testMappedParseResult(final ParserOutput result, final ParseType type, final String value, {final trim = true}) {
+void testMappedParseResult(
+    final ParserOutput result, final ParseType type, final String value,
+    {final trim = true}) {
   expect(result.type, type);
   expect(result.value, trim ? value.trim() : value);
 }
@@ -147,8 +150,6 @@ void main() {
       parseShouldFail(IDENTIFIER, '1hello');
     });
 
-
-
     test('SINGLE_LINE_STRING1 should work as expected', () {
       singleQuoteStringTests(SINGLE_LINE_STRING1);
     });
@@ -191,8 +192,10 @@ void main() {
     });
 
     test('COMMENT should work as expected', () {
-      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '/* testing */');
-      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, ' /*testing //fake comment inside */ ');
+      parseAndTestMappedResult(
+          COMMENT, ParseType.ImportBlockComment, '/* testing */');
+      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment,
+          ' /*testing //fake comment inside */ ');
       parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '/**/');
       parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '''
 
@@ -201,10 +204,14 @@ void main() {
        */
       
       ''');
-      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '// Test');
-      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, ' //hello ');
-      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '/// this is the best  ');
-      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment, '/// comment // comment //comment should only be one');
+      parseAndTestMappedResult(
+          COMMENT, ParseType.ImportBlockComment, '// Test');
+      parseAndTestMappedResult(
+          COMMENT, ParseType.ImportBlockComment, ' //hello ');
+      parseAndTestMappedResult(
+          COMMENT, ParseType.ImportBlockComment, '/// this is the best  ');
+      parseAndTestMappedResult(COMMENT, ParseType.ImportBlockComment,
+          '/// comment // comment //comment should only be one');
     });
 
     test('COMBINATOR_LIST should work as expected', () {
@@ -223,9 +230,12 @@ void main() {
     });
 
     test('IMPORT_STATEMENT should work as expected', () {
-      parseAndTestMappedResult(IMPORT_STATEMENT, ParseType.Import, test_text.importStatement1);
-      parseAndTestMappedResult(IMPORT_STATEMENT, ParseType.Import, test_text.importStatement2);
-      parseAndTestMappedResult(IMPORT_STATEMENT, ParseType.Import, test_text.importStatement3);
+      parseAndTestMappedResult(
+          IMPORT_STATEMENT, ParseType.Import, test_text.importStatement1);
+      parseAndTestMappedResult(
+          IMPORT_STATEMENT, ParseType.Import, test_text.importStatement2);
+      parseAndTestMappedResult(
+          IMPORT_STATEMENT, ParseType.Import, test_text.importStatement3);
     });
 
     test('IMPORT_BLOCK should work as expected', () {
@@ -235,24 +245,31 @@ void main() {
     });
 
     test('FILE_HEADER should work as expected', () {
-      expect(FILE_HEADER.parse('/* header comment */import \'\';').value.value, '/* header comment */');
+      expect(FILE_HEADER.parse('/* header comment */import \'\';').value.value,
+          '/* header comment */');
       expect(FILE_HEADER.parse(dartEmojis).value.value, '');
     });
-  
+
     test('FILE_GRAMMAR should work as expected', () {
       final results = FILE_GRAMMAR.parse(test_text.sampleFileText).value;
-      
+
       // File with header, import block and body
-      testMappedParseResult(results[0], ParseType.Header, test_text.sampleFileHeader, trim: true);
+      testMappedParseResult(
+          results[0], ParseType.Header, test_text.sampleFileHeader,
+          trim: true);
       testMappedImportBlockResults(results[1]);
-      testMappedParseResult(results[2], ParseType.Body, test_text.sampleFileBody, trim: false);
+      testMappedParseResult(
+          results[2], ParseType.Body, test_text.sampleFileBody,
+          trim: false);
 
       // File with no header
       final results2 = FILE_GRAMMAR.parse(test_text.sampleFileNoHeader).value;
 
       testMappedParseResult(results2[0], ParseType.Header, '', trim: false);
       testMappedImportBlockResults(results2[1]);
-      testMappedParseResult(results2[2], ParseType.Body, test_text.sampleFileBody, trim: false);
+      testMappedParseResult(
+          results2[2], ParseType.Body, test_text.sampleFileBody,
+          trim: false);
 
       // File with no import
       final results3 = FILE_GRAMMAR.parse('').value;
@@ -267,30 +284,40 @@ void main() {
       expect(results4[2].value, '');
 
       // File with class in header
-      final results5 = FILE_GRAMMAR.parse(test_text.sampleFileHeaderClassOnly).value;
+      final results5 =
+          FILE_GRAMMAR.parse(test_text.sampleFileHeaderClassOnly).value;
       expect(results5[0].value, test_text.sampleFileHeaderClassOnly);
 
       // File with random code as header
-      final results6 = FILE_GRAMMAR.parse(test_text.sampleFileHeaderRandomCode).value;
+      final results6 =
+          FILE_GRAMMAR.parse(test_text.sampleFileHeaderRandomCode).value;
       expect(results6[0].value, test_text.sampleFileHeaderRandomCode);
 
       // File that already has generated import comments
       // Such comments should be ignored
-      final results7 = FILE_GRAMMAR.parse(test_text.sampleFileHeaderImportComments).value;
+      final results7 =
+          FILE_GRAMMAR.parse(test_text.sampleFileHeaderImportComments).value;
       expect(results7[0].value, '');
       // Ensure that no values contain comments
-      expect((results7[1] as List<ParserOutput>).map((e) => !e.value.contains('//')).reduce((value, element) => value || element), true);
+      expect(
+          (results7[1] as List<ParserOutput>)
+              .map((e) => !e.value.contains('//'))
+              .reduce((value, element) => value || element),
+          true);
       expect(results7[2].value, '');
     });
 
     test('trimWithComments should work as expected', () {
       testParser(DOLLAR.trimWithComments(), '$projectEmojis \$ \n', '\$');
-      testParser(HIDE.trimWithComments(), '''$flutterNoEmojis
+      testParser(
+          HIDE.trimWithComments(),
+          '''$flutterNoEmojis
       
       hide
       
       $projectNoEmojis
-      ''', 'hide');
+      ''',
+          'hide');
     });
   });
 }
