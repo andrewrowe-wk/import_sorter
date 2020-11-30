@@ -2,7 +2,7 @@
 import 'dart:io';
 
 /// Get all the dart files for the project and the contents
-Map<String, List<String>> dartFiles(String currentPath) {
+Map<String, List<String>> dartFiles(final String currentPath) {
   final dartFiles = <String, List<String>>{};
   final allContents = [
     ...Directory('$currentPath/lib').listSync(recursive: true)

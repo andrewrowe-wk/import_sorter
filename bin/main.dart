@@ -19,12 +19,14 @@ void main(List<String> args) {
   parser.addFlag('help', abbr: 'h', negatable: false);
   parser.addFlag('exit-if-changed', negatable: false);
   parser.addFlag('no-comments', negatable: false);
+  parser.addOption('input-dir', abbr: 'i');
+  final parseResults = parser.parse(args);
   final argResults = parser.parse(args).arguments;
   if (argResults.contains('-h') || argResults.contains('--help')) {
     local_args.outputHelp();
   }
 
-  final currentPath = Directory.current.path;
+  final currentPath = parseResults['input-dir'] ?? Directory.current.path;
   /*
   Getting the package name and dependencies/dev_dependencies
   Package name is one factor used to identify project imports
@@ -110,6 +112,8 @@ void main(List<String> args) {
           dartFiles[filePath], packageName, emojis, noComments);
       if (sortFileReturnPayload.fileWasSorted) {
         File(filePath).writeAsStringSync(sortFileReturnPayload.sortedFileText);
+      } else {
+        print('file was not sorted');
       }
       importsSorted += sortFileReturnPayload.numberOfImportsSorted;
       filesFormatted++;

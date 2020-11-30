@@ -1,6 +1,4 @@
 // 📦 Package imports:
-import 'dart:io';
-
 import 'package:import_sorter/file_parser/file_parser.dart';
 import 'package:import_sorter/file_parser/models/import_statement.dart';
 import 'package:import_sorter/import_comments.dart';
@@ -91,7 +89,7 @@ SortReturnPayload sortImports(
   final sortedFile = fileOutput.join('\n');
   final originalFile = lines.join('\n') + '\n';
 
-  final fileWasSorted = originalFile == sortedFile;
+  final fileWasSorted = originalFile != sortedFile;
 
   final numberOfImportsSorted = dartImports.length +
       flutterImports.length +
