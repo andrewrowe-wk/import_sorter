@@ -112,20 +112,18 @@ void main(List<String> args) {
           dartFiles[filePath], packageName, emojis, noComments);
       if (sortFileReturnPayload.fileWasSorted) {
         File(filePath).writeAsStringSync(sortFileReturnPayload.sortedFileText);
-      } else {
-        print('file was not sorted');
+        importsSorted += sortFileReturnPayload.numberOfImportsSorted;
+        filesFormatted++;
+        final dirChunks = filePath.replaceAll(currentPath, '').split('/');
+        stdout.write(
+            '${filesFormatted == 1 ? '\n' : ''}┃  ${filesFormatted == dartFiles.keys.length ? '┗' : '┣'}━━✅ Sorted ${sortFileReturnPayload.numberOfImportsSorted} imports in ${dirChunks.getRange(0, dirChunks.length - 1).join('/')}/');
+        color(
+          dirChunks.last,
+          back: Styles.BOLD,
+          front: Styles.GREEN,
+          isBold: true,
+        );
       }
-      importsSorted += sortFileReturnPayload.numberOfImportsSorted;
-      filesFormatted++;
-      final dirChunks = filePath.replaceAll(currentPath, '').split('/');
-      stdout.write(
-          '${filesFormatted == 1 ? '\n' : ''}┃  ${filesFormatted == dartFiles.keys.length ? '┗' : '┣'}━━✅ Sorted ${sortFileReturnPayload.numberOfImportsSorted} imports in ${dirChunks.getRange(0, dirChunks.length - 1).join('/')}/');
-      color(
-        dirChunks.last,
-        back: Styles.BOLD,
-        front: Styles.GREEN,
-        isBold: true,
-      );
     }
     stopwatch.stop();
     stdout.write(
