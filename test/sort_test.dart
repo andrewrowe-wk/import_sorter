@@ -6,13 +6,6 @@ import 'package:import_sorter/sort.dart';
 
 void switcher(bool emojis, bool noComments) {
   const packageName = 'import_sorter_test';
-  const dependencies = [
-    'provider',
-    'mdi',
-    'intl',
-    'yaml',
-    'flutter',
-  ];
 
   // Imports:
   const dartImports = '''
